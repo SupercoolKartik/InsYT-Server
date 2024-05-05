@@ -3,12 +3,12 @@ import express from "express";
 import { google } from "googleapis";
 import dotenv from "dotenv";
 
+// Calling dotenv.config()
+dotenv.config();
+
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT;
-
-// Calling dotenv.config()
-dotenv.config();
 
 const apikey = process.env.API_KEY;
 
@@ -86,24 +86,26 @@ app.get("/", async (req, res) => {
 
   const items = await listPlaylistItems(apikey, pId); //List of Playlist items
 
-  // Create an array of promises for video length retrievals
-  const videoLengthPromises = items.map(async (item) => {
-    const vId = item.snippet.resourceId.videoId; //Video Id(of a particular video in the playlist)
-    return await getVideoLength(apikey, vId);
-  });
-  // Wait for all video length promises to resolve
-  const videoLengths = await Promise.all(videoLengthPromises);
-  //Calculate the total duration
-  let playlist_length = 0; //(in seconds)
-  for (let i = 0; i < videoLengths.length; i++) {
-    playlist_length += videoLengths[i];
+  if (items) {
+    // Create an array of promises for video length retrievals
+    const videoLengthPromises = items.map(async (item) => {
+      const vId = item.snippet.resourceId.videoId; //Video Id(of a particular video in the playlist)
+      return await getVideoLength(apikey, vId);
+    });
+    // Wait for all video length promises to resolve
+    const videoLengths = await Promise.all(videoLengthPromises);
+    //Calculate the total duration
+    let playlist_length = 0; //(in seconds)
+    for (let i = 0; i < videoLengths.length; i++) {
+      playlist_length += videoLengths[i];
+    }
+
+    const playlist_size = items.length;
+    const playlist_name = await getPlaylistTitle(apikey, pId);
+
+    // Send the response with the items and total duration
+    res.json({ playlist_name, playlist_size, playlist_length });
   }
-
-  const playlist_size = items.length;
-  const playlist_name = await getPlaylistTitle(apikey, pId);
-
-  // Send the response with the items and total duration
-  res.json({ playlist_name, playlist_size, playlist_length });
 });
 
 server.listen(PORT, () => {
