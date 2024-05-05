@@ -2,12 +2,16 @@ import http from "http";
 import express from "express";
 import { google } from "googleapis";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT;
+
+// Enable CORS for all routes
+app.use(cors());
 
 const apikey = process.env.API_KEY;
 
