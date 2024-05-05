@@ -80,7 +80,7 @@ const listPlaylistItems = async (auth, playlistId) => {
   }
 };
 
-app.get("/", async (req, res) => {
+app.get("/getdetails", async (req, res) => {
   const pId = req.query.pId; //Playlist Id
 
   if (pId) {
@@ -107,6 +107,12 @@ app.get("/", async (req, res) => {
       res.json({ playlist_name, playlist_size, playlist_length });
     }
   }
+});
+
+app.get("/", (req, res) => {
+  const greetMsg = "Welcome to insyt server";
+  res.send(greetMsg);
+  console.log(greetMsg);
 });
 
 server.listen(PORT, () => {
